@@ -184,6 +184,7 @@ int main(int argc,char *argv[])
         char teste = 0;
         strcpy(refr, argv[1]);
         int o = strlen(refr);
+        unsigned short gravar = 0;
         char det;
         printf("Ver detalhes s/n ? ");
         scanf("%s",&det);
@@ -204,6 +205,7 @@ int main(int argc,char *argv[])
             printf("\n\tanalisando...\n\n");
             while(feof(init) == 0){
                 adq = 0;
+                gravar = 0;
                 fread(&adq, sizeof(adq), 1, init);
                 if(feof(init)) break;
                 asm("mov ax, %[b];"
@@ -417,7 +419,7 @@ int main(int argc,char *argv[])
                     "jg Sindrome;"  /*<--- Sindrome > m*/
                       
                     "Mcorreto:" 
-                    "jmp fimF;"
+                    "jmp fimF1;"
                     
                     "Mincorreto:"
                     "inc %[opc2];"
@@ -426,12 +428,12 @@ int main(int argc,char *argv[])
                     "Sindrome:"
                     "inc %[opc2];"
                     "add %[opc], 40;"
-                    "jmp fimF;"
+                    "jmp fimF1;"
                       
                     "identErro:"
                     "inc %[opc2];"
                     "cmp r13b, 0;"
-                    "je fimF;"
+                    "je fimF1;"
                     "cmp r13b, 1;"
                     "je erro1;"
                     "cmp r13b, 2;"
@@ -591,40 +593,57 @@ int main(int argc,char *argv[])
                     
                     "continua:"
                     "xor r14, r14;"
+                    
                     "or r14w, r11w;"
                     "shl r14w, 1;"
+                    
                     "or r14w, r10w;"
                     "shl r14w, 1;"
+                    
                     "or r14w, r9w;"
                     "shl r14w, 1;"
+                    
                     "or r14w, r8w;"
                     "shl r14w, 1;"
+                    
                     "xor r12, r12;"
-                    "mov r12b, %[x08];"
+                    
+                    /*"mov r12b, %[x08];"
                     "or r14w, r12w;"
-                    "shl r14w, 1;"
+                    "shl r14w, 1;"*/
+                    
                     "or r14w, dx;"
                     "shl r14w, 1;"
+                    
                     "or r14w, cx;"
                     "shl r14w, 1;"
+                    
                     "or r14w, bx;"
                     "shl r14w, 1;"
+                    /*
                     "xor r12, r12;"
+                    
                     "mov r12b, %[x04];"
                     "or r14w, r12w;"
                     "shl r14w, 1;"
+                    */
                     "or r14w, ax;"
                     "shl r14w, 1;"
+                    /*
                     "xor r12, r12;"
+                    
                     "mov r12b, %[x02];"
                     "or r14w, r12w;"
                     "shl r14w, 1;"
+                    
                     "xor r12, r12;"
+                    
                     "mov r12b, %[x01];"
                     "or r14w, r12w;"
                     "shl r14w, 1;"
-                    "xor r12, r12;"
                     
+                    "xor r12, r12;"
+                    */
                     "xor r13, r13;"
                     "xor r13b, al;"
                     "xor r13b, bl;"
@@ -638,9 +657,9 @@ int main(int argc,char *argv[])
                     "xor r13b, %[x02];"
                     "xor r13b, %[x04];"
                     "xor r13b, %[x08];"
-                    
-                    "and r13w, 1;"
-                    "xor r14w, r13w;" /*palavra arrumada com G novo*/
+                   
+                    /*"and r13w, 1;"
+                    "xor r14w, r13w;" *//*palavra arrumada com G novo*/
                     "mov %[gn], r13b;" /*G''*/
                     
                     "mov %[teste2], r14;"
@@ -653,23 +672,56 @@ int main(int argc,char *argv[])
                     "inc %[opc2];"
                     "mov %[opc], 0;"
                     "add %[opc], 30;" /*<-- erro duplo*/
-                    "jmp fimF;"
+                    "jmp fimF1;"
                     
                     "palavraBoa:"
                     "inc %[opc2];"
                     "add %[opc1], 1;"
-                    "mov %[b], r14w;"
+                    "mov %[aki], r14w;"
+                    "jmp fimF1;"
+                    
+                    "fimF1:"
+                    "xor r14, r14;"
+                
+                    "or r14w, r11w;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, r10w;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, r9w;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, r8w;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, dx;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, cx;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, bx;"
+                    "shl r14w, 1;"
+                    
+                    "or r14w, ax;"
+                    
+                    "mov %[aki], r14w;"
                     
                     "fimF:"
 
                     : 
-                    : [x1] "m" (x1), [x2] "m" (x2), [x4] "m" (x4), [x8] "m" (x8), [g] "m" (g), [b] "m" (adq), [rr1] "m" (rr1), [rr2] "m" (rr2), [rr4] "m" (rr4), [rr8] "m" (rr8), [pg] "m" (pg), [opc] "m" (opc), [gn] "m" (gn), [gd] "m" (gd), [teste] "m" (teste), [c1] "m" (c1), [c2] "m" (c2), [c4] "m" (c4), [c8] "m" (c8), [teste2] "m" (teste2), [teste3] "m" (teste3), [teste4] "m" (teste4), [x01] "m" (x01), [x02] "m" (x02), [x04] "m" (x04), [x08] "m" (x08), [opc1] "m" (opc1), [opc2] "m" (opc2)
+                    : [x1] "m" (x1), [x2] "m" (x2), [x4] "m" (x4), [x8] "m" (x8), [g] "m" (g), [b] "m" (adq), [rr1] "m" (rr1), [rr2] "m" (rr2), [rr4] "m" (rr4), [rr8] "m" (rr8), [pg] "m" (pg), [opc] "m" (opc), [gn] "m" (gn), [gd] "m" (gd), [teste] "m" (teste), [c1] "m" (c1), [c2] "m" (c2), [c4] "m" (c4), [c8] "m" (c8), [teste2] "m" (teste2), [teste3] "m" (teste3), [teste4] "m" (teste4), [x01] "m" (x01), [x02] "m" (x02), [x04] "m" (x04), [x08] "m" (x08), [opc1] "m" (opc1), [opc2] "m" (opc2), [aki] "m" (gravar)
                     : "cc", "memory","rax","rbx","rcx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
                 );
 				if(feof(init) == 0){
-					fwrite(&adq,sizeof(adq),1,far);
+					fwrite(&gravar,(sizeof(gravar)/2),1,far);
 					if(det == 's'){
-						char* binary = binConv(adq, 16);
+						char* binary = binConv(gravar, 16);
+						printf("%s\n",binary);
+						
+						puts("Grazvando'");
+						binary = binConv(gravar, 16);
 						printf("%s\n",binary);
 						
 				        puts("\trr1'");
